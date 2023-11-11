@@ -22,7 +22,6 @@ async fn main() {
 ```
 
 ### Actors
-
 For more-detailed requests, Trotter personifies the
 the entity requesting information as an [`Actor`].
 
@@ -83,6 +82,6 @@ robust enough to write a complete client with.
 - [X] Write response to file
 - [X] Get response as gemtext
 - [X] robots.txt support
-- [ ] /bin 👀
+- [X] Custom errors
+- [ ] Cli binary 👀
 - [ ] Server certificates
-- [ ] Custom errors
