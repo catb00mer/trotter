@@ -94,7 +94,8 @@ impl Actor {
 
         // Create connection
         let domain = url.domain().ok_or(ActorError::DomainErr)?;
-        let tcp = TcpStream::connect(&format!("{domain}:{}", url.port().unwrap_or(1965)))
+        let port = url.port().unwrap_or(1965);
+        let tcp = TcpStream::connect(&format!("{domain}:{port}"))
             .await
             .map_err(|e| ActorError::TcpError(e))?;
 
