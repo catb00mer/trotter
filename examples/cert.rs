@@ -11,7 +11,6 @@ async fn main() -> anyhow::Result<()> {
     let Cli { url } = Cli::parse();
 
     let r = Actor::default()
-        .user_agent(UserAgent::Indexer)
         .cert_file("demo.crt")
         .key_file("demo.key")
         .get(url)
