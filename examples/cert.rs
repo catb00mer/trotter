@@ -1,5 +1,5 @@
 use clap::Parser;
-use trotter::{Actor, UserAgent};
+use trotter::Actor;
 
 #[derive(Parser)]
 struct Cli {
