@@ -1,0 +1,22 @@
+[package]
+name = "trotter"
+description = "Trotter 🎠 is an experimental crate that aims to make writing Gemini clients fun and easy."
+version = "0.1.0"
+edition = "2021"
+authors = ["catboomer"]
+readme = "readme.md"
+license = "GPL-3.0-only"
+keywords = ["gemini"]
+categories = ["network-programming"]
+
+[dependencies]
+openssl = "0.10"
+thiserror = "1.0"
+tokio = { version = "1", features = ["fs", "io-util", "net", "macros", "io-std", "rt-multi-thread"] }
+tokio-openssl = "0.6"
+url = "2.4"
+
+[dev-dependencies]
+trotter = { path = "." }
+anyhow = "1"
+clap = { version = "4.4", features = ["derive"] }
