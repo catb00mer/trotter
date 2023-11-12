@@ -46,4 +46,7 @@ pub enum ResponseErr {
 
     #[error("Failed to write file: {0}")]
     FileWrite(std::io::Error),
+
+    #[error("Failed to create file: {0}")]
+    FileCreate(std::io::Error),
 }

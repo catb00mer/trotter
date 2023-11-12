@@ -16,7 +16,5 @@ async fn main() -> anyhow::Result<()> {
         .get(url)
         .await?;
 
-    println!("{}", r.gemtext()?);
-
     Ok(())
 }

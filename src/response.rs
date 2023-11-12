@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write};
+use std::{fs::File, io::Write, path::PathBuf};
 
 use crate::error::ResponseErr;
 
@@ -37,6 +37,17 @@ impl Response {
     /// Save response to file.
     pub fn save(&self, file: &mut File) -> Result<()> {
         self.require_status(20)?;
+        file.write_all(&self.content)
+            .map_err(|e| ResponseErr::FileWrite(e))?;
+        Ok(())
+    }
+
+    /// Save response to file.
+    pub fn save_to_path(&self, path: impl Into<PathBuf>) -> Result<()> {
+        self.require_status(20)?;
+
+        let path = path.into();
+        let mut file = File::create(path).map_err(|e| ResponseErr::FileCreate(e))?;
         file.write_all(&self.content)
             .map_err(|e| ResponseErr::FileWrite(e))?;
         Ok(())
