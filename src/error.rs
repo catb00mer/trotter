@@ -38,7 +38,7 @@ pub enum ResponseErr {
     #[error("Utf8 error: {0}")]
     Utf8(#[from] std::str::Utf8Error),
 
-    #[error("Status: expected {0}, receieved {1}")]
+    #[error("Status: expected {0}, received {1}")]
     UnexpectedStatus(Status, Status),
 
     #[error("Filetype: expected {0}, receieved {1}")]
