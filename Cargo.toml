@@ -1,6 +1,8 @@
 [package]
 name = "trotter"
 description = "Trotter 🎠 is an experimental crate that aims to make writing Gemini clients fun and easy."
+homepage = "https://github.com/catb00mer/trotter"
+repository = "https://github.com/catb00mer/trotter"
 version = "0.2.0"
 edition = "2021"
 authors = ["catboomer"]
