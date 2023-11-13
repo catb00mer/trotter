@@ -97,7 +97,6 @@ impl Actor {
     ) -> Result<Response> {
         let input = input.into();
         let input = urlencoding::encode(&input);
-        println!("{input}");
         let url = self.build_url(url.into(), Some(&input))?;
 
         self.obey_robots(&url).await?;
