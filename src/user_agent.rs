@@ -1,4 +1,4 @@
-/// Enum for representing useragents defined by the gemini version of the robots.txt spec.
+/// Enum representing user-agents defined by the gemini version of the robots.txt spec.
 #[derive(Debug, Clone)]
 pub enum UserAgent {
     /// Gemini bots which fetch content in order to build

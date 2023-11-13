@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{path::PathBuf, time::Duration};
 
 use openssl::ssl::{Ssl, SslConnector, SslFiletype, SslMethod, SslVerifyMode};
 use tokio::{

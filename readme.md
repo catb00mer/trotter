@@ -67,6 +67,10 @@ Once you receive a structured [`Response`], you can either
 weed through it yourself, or rely on the helper functions it
 implements to preform common operations.
 
+## 📖 Gemtext
+You can parse gemtext into a list of symbols with
+[`parse::Gemtext::parse`] method.
+
 ## Tips
 ### Certificates
 If you have access to a posix shell with `openssl`

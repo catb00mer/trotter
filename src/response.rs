@@ -13,13 +13,21 @@ pub struct Response {
 type Result<T> = std::result::Result<T, ResponseErr>;
 
 impl Response {
+    pub fn is_gemtext(&self) -> bool {
+        if let Some(pos) = self.meta.find("text/gemini") {
+            if pos == 0 {
+                return true;
+            }
+        }
+        false
+    }
+
     /// Return gemtext (if any) inside this response.
     pub fn gemtext(&self) -> Result<String> {
         self.require_status(20)?;
-        if let Some(pos) = self.meta.find("text/gemini") {
-            if pos == 0 {
-                return Ok(self.text()?);
-            }
+
+        if self.is_gemtext() {
+            return Ok(self.text()?);
         }
 
         Err(ResponseErr::UnexpectedFiletype(
@@ -44,7 +52,7 @@ impl Response {
         Ok(())
     }
 
-    /// Save response to file.
+    /// Save response to path.
     pub fn save_to_path(&self, path: impl Into<PathBuf>) -> Result<()> {
         self.require_status(20)?;
 

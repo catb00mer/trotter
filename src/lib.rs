@@ -2,6 +2,7 @@
 
 mod actor;
 pub mod error;
+pub mod parse;
 mod response;
 mod status;
 mod user_agent;

@@ -1,6 +1,10 @@
 use clap::Parser;
-use std::{process::ExitCode, time::Duration};
-use trotter::{error::ResponseErr, Actor, UserAgent};
+use std::{path::PathBuf, process::ExitCode, time::Duration};
+use trotter::{
+    error::ResponseErr,
+    parse::{Gemtext, Symbol},
+    Actor, UserAgent,
+};
 
 #[derive(thiserror::Error, Debug)]
 enum TrotErr {
@@ -43,6 +47,10 @@ struct Cli {
     /// Only allow gemtext responses. Has no effect when using --output
     #[clap(short, long)]
     gemtext_only: bool,
+
+    /// Print pretty gemtext responses.
+    #[clap(short, long)]
+    pretty_print: bool,
 }
 
 async fn run() -> Result<(), TrotErr> {
@@ -55,6 +63,7 @@ async fn run() -> Result<(), TrotErr> {
         user_agent,
         timeout,
         gemtext_only,
+        pretty_print,
     } = Cli::parse();
 
     let mut actor = Actor {
@@ -89,10 +98,32 @@ async fn run() -> Result<(), TrotErr> {
     // Save or output
     if let Some(output) = output {
         response.save_to_path(output)?;
-    } else if gemtext_only {
-        println!("{}", response.gemtext()?);
+        return Ok(());
+    }
+
+    let text = if gemtext_only {
+        response.gemtext()?
     } else {
-        println!("{}", response.text()?);
+        response.text()?
+    };
+
+    // Pretty print
+    if pretty_print && response.is_gemtext() {
+        for g in Gemtext::parse(&text).inner() {
+            match g {
+                Symbol::Text(a) => print!("{a}"),
+                Symbol::Link(a, b) => print!("\x1b[0;4m{b}\x1b[0m \x1b[2m{a}"),
+                Symbol::List(a) => print!("• {a}"),
+                Symbol::Quote(a) => print!("\x1b[33;3;1m« {a} »"),
+                Symbol::Header1(a) => print!("\x1b[32;1m▍ {a}"),
+                Symbol::Header2(a) => print!("\x1b[36;1m▋ {a}"),
+                Symbol::Header3(a) => print!("\x1b[34;1m█ {a}"),
+                Symbol::Codeblock(a, b) => print!("\x1b[35;2m{a}\x1b[0m\n\x1b[35m{b}"),
+            }
+            println!("\x1b[0m");
+        }
+    } else {
+        println!("{text}");
     }
     Ok(())
 }
