@@ -20,6 +20,9 @@ struct Cli {
     url: String,
 
     #[clap(short, long)]
+    input: Option<String>,
+
+    #[clap(short, long)]
     cert: Option<String>,
 
     #[clap(short, long)]
@@ -45,6 +48,7 @@ struct Cli {
 async fn run() -> Result<(), TrotErr> {
     let Cli {
         url,
+        input,
         cert,
         key,
         output,
@@ -76,7 +80,11 @@ async fn run() -> Result<(), TrotErr> {
     }
 
     // Get response
-    let response = actor.get(url).await?;
+    let response = if let Some(input) = input {
+        actor.input(url, input).await?
+    } else {
+        actor.get(url).await?
+    };
 
     // Save or output
     if let Some(output) = output {

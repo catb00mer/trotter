@@ -20,6 +20,15 @@ pub async fn trot(url: impl Into<String>) -> Result<Response> {
     Actor::default().get(url).await
 }
 
+/// 🎠 An ergonomic way to call [`Actor::input`] with the default actor.
+///
+/// ```
+/// Actor::trot_in("localhost/input", "notice me!").await
+/// ```
+pub async fn trot_in(url: impl Into<String>, input: impl Into<String>) -> Result<Response> {
+    Actor::default().input(url.into(), input.into()).await
+}
+
 /// Make a gemini request.
 pub struct Actor {
     pub cert:       Option<String>,
@@ -72,24 +81,31 @@ impl Actor {
     ///
     /// Url can elide the `gemini://` prefix. It's up to you.
     pub async fn get(&self, url: impl Into<String>) -> Result<Response> {
-        let mut url = url.into();
+        let url = self.build_url(url.into(), None)?;
 
-        //  Add `gemini://` if it's not in the url
-        if let Some(pos) = url.find("gemini://") {
-            if pos != 0 {
-                url = format!("gemini://{url}");
-            }
-        } else {
-            url = format!("gemini://{url}");
-        }
-
-        let url = Url::parse(&url)?;
         self.obey_robots(&url).await?;
-        Ok(self.send_request(url).await?)
+        Ok(self.send_request(&url).await?)
+    }
+
+    /// Send gemini request to url with input.
+    ///
+    /// Input is automatically percent-encoded.
+    pub async fn input(
+        &self,
+        url: impl Into<String>,
+        input: impl Into<String>,
+    ) -> Result<Response> {
+        let input = input.into();
+        let input = urlencoding::encode(&input);
+        println!("{input}");
+        let url = self.build_url(url.into(), Some(&input))?;
+
+        self.obey_robots(&url).await?;
+        Ok(self.send_request(&url).await?)
     }
 
     /// (private) Internal function for sending a request.
-    async fn send_request(&self, mut url: Url) -> Result<Response> {
+    async fn send_request(&self, url: &Url) -> Result<Response> {
         // Build connector
         let mut connector = SslConnector::builder(SslMethod::tls_client())?;
         connector.set_verify_callback(SslVerifyMode::FAIL_IF_NO_PEER_CERT, |_, _| true);
@@ -124,11 +140,6 @@ impl Actor {
         ssl.set_hostname(domain)?; // <- SNI (Server name indication) and don't you forget it 💢
 
         let mut stream = SslStream::new(ssl, tcp)?;
-
-        // Add slash to path
-        if url.path() == "" {
-            url.set_path("/");
-        }
 
         // Write request
         stream
@@ -178,7 +189,7 @@ impl Actor {
         };
 
         if let Ok(response) = self
-            .send_request(Url::parse(&format!(
+            .send_request(&Url::parse(&format!(
                 "gemini://{}/robots.txt",
                 url.domain().ok_or(ActorError::DomainErr)?
             ))?)
@@ -211,5 +222,27 @@ impl Actor {
             }
         }
         Ok(())
+    }
+
+    fn build_url(&self, mut url: String, input: Option<&str>) -> Result<Url> {
+        //  Add `gemini://` if it's not in the url
+        if let Some(pos) = url.find("gemini://") {
+            if pos != 0 {
+                url = format!("gemini://{url}");
+            }
+        } else {
+            url = format!("gemini://{url}");
+        }
+
+        let mut url = Url::parse(&url)?;
+
+        // Add slash to path
+        if url.path() == "" {
+            url.set_path("/");
+        }
+
+        url.set_query(input);
+
+        Ok(url)
     }
 }
