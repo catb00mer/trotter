@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use openssl::ssl::{Ssl, SslConnector, SslFiletype, SslMethod, SslVerifyMode};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -8,16 +10,6 @@ use url::Url;
 
 use crate::{error::ActorError, Response, UserAgent};
 
-/// Make a gemini request.
-#[derive(Default)]
-pub struct Actor {
-    pub cert:       Option<String>,
-    pub key:        Option<String>,
-    pub user_agent: Option<UserAgent>,
-}
-
-type Result<T> = std::result::Result<T, ActorError>;
-
 /// 🎠 An ergonomic way to call [`Actor::get`] with the default actor.
 ///
 /// ```
@@ -26,6 +18,28 @@ type Result<T> = std::result::Result<T, ActorError>;
 pub async fn trot(url: impl Into<String>) -> Result<Response> {
     let url = url.into();
     Actor::default().get(url).await
+}
+
+/// Make a gemini request.
+pub struct Actor {
+    pub cert:       Option<String>,
+    pub key:        Option<String>,
+    pub user_agent: Option<UserAgent>,
+    /// Timeout for establishing tcp connections (default is 5 secs)
+    pub timeout:    Duration,
+}
+
+type Result<T> = std::result::Result<T, ActorError>;
+
+impl Default for Actor {
+    fn default() -> Self {
+        Self {
+            user_agent: None,
+            cert:       None,
+            key:        None,
+            timeout:    Duration::from_secs(5),
+        }
+    }
 }
 
 impl Actor {
@@ -92,16 +106,23 @@ impl Actor {
                 .map_err(|e| ActorError::KeyCertFileError(e))?;
         }
 
-        // Create connection
+        // Connect with tcp
         let domain = url.domain().ok_or(ActorError::DomainErr)?;
         let port = url.port().unwrap_or(1965);
-        let tcp = TcpStream::connect(&format!("{domain}:{port}"))
-            .await
-            .map_err(|e| ActorError::TcpError(e))?;
 
+        let tcp = tokio::time::timeout(
+            self.timeout,
+            TcpStream::connect(&format!("{domain}:{port}")),
+        )
+        .await
+        .map_err(|t| ActorError::Timeout(t))?
+        .map_err(|e| ActorError::TcpError(e))?;
+
+        // Wrap connection in ssl stream
         let mut ssl = Ssl::new(connector.build().context())?;
         ssl.set_connect_state();
         ssl.set_hostname(domain)?; // <- SNI (Server name indication) and don't you forget it 💢
+
         let mut stream = SslStream::new(ssl, tcp)?;
 
         // Add slash to path
