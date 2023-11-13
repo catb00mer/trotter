@@ -87,5 +87,5 @@ robust enough to write a complete client with.
 - [X] Get response as gemtext
 - [X] robots.txt support
 - [X] Custom errors
-- [ ] Cli binary 👀
+- [X] Cli binary 👀
 - [ ] Server certificates
