@@ -23,10 +23,10 @@ struct Cli {
     input: Option<String>,
 
     #[clap(short, long)]
-    cert: Option<String>,
+    cert: Option<PathBuf>,
 
     #[clap(short, long)]
-    key: Option<String>,
+    key: Option<PathBuf>,
 
     /// archiver, indexer, researcher, webproxy
     #[clap(short, long)]

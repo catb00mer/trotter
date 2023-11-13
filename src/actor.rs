@@ -31,8 +31,8 @@ pub async fn trot_in(url: impl Into<String>, input: impl Into<String>) -> Result
 
 /// Make a gemini request.
 pub struct Actor {
-    pub cert:       Option<String>,
-    pub key:        Option<String>,
+    pub cert:       Option<PathBuf>,
+    pub key:        Option<PathBuf>,
     pub user_agent: Option<UserAgent>,
     /// Timeout for establishing tcp connections (default is 5 secs)
     pub timeout:    Duration,
@@ -53,14 +53,14 @@ impl Default for Actor {
 
 impl Actor {
     /// Set your client certificate file path
-    pub fn cert_file(mut self, cert: &str) -> Self {
-        self.cert = Some(cert.to_string());
+    pub fn cert_file(mut self, cert: impl Into<PathBuf>) -> Self {
+        self.cert = Some(cert.into());
         self
     }
 
     /// Set your client key file path
-    pub fn key_file(mut self, key: &str) -> Self {
-        self.key = Some(key.to_string());
+    pub fn key_file(mut self, key: impl Into<PathBuf>) -> Self {
+        self.key = Some(key.into());
         self
     }
 
