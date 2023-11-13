@@ -10,20 +10,24 @@ library, while also being easy to use.
 
 ### Trot
 If you're only here to send a quick request, refer to the
-ergonomic [`trot`] method.
+ergonomic [`trot`] and [`trot_in`] methods.
 
 ``` rust
 #[tokio::main]
 async fn main() {
-    trotter::trot("localhost") // gemini:// prefix and root slash can be elided
+    trotter::trot("geminiprotocol.net") // gemini:// prefix and root slash can be elided
+        .await
+        .unwrap();
+
+    trotter::trot_in("localhost/input", "notice me!") // gemini:// prefix and root slash can be elided
         .await
         .unwrap();
 }
 ```
 
 ### Actors
-For more-detailed requests, Trotter personifies the
-the entity requesting information as an [`Actor`].
+For more-detailed requests, Trotter personifies the entity
+requesting information as an [`Actor`].
 
 You can use the builder pattern to easily attach a user
 agent and client certificate to the actor.
