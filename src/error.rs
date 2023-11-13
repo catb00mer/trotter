@@ -8,8 +8,8 @@ pub enum ActorError {
     #[error("Failed reading/writing to stream: {0}")]
     Stream(#[from] std::io::Error),
 
-    #[error("Utf8 error: {0}")]
-    Utf8(#[from] std::str::Utf8Error),
+    #[error("Header isn't utf8: {0}")]
+    Utf8Header(std::str::Utf8Error),
 
     #[error("OpenSSL error: {0}")]
     SslErr(#[from] openssl::error::ErrorStack),
@@ -31,17 +31,20 @@ pub enum ActorError {
 
     #[error("Visiting {0} isn't allowed from your user-agent ({1}).")]
     RobotDenied(String, UserAgent),
+
+    #[error("Tcp connection timeout: {0}")]
+    Timeout(tokio::time::error::Elapsed),
 }
 
 #[derive(thiserror::Error, Debug)]
 pub enum ResponseErr {
-    #[error("Utf8 error: {0}")]
-    Utf8(#[from] std::str::Utf8Error),
+    #[error("Content isn't utf8: {0}")]
+    Utf8Content(std::str::Utf8Error),
 
-    #[error("Status: expected {0}, received {1}")]
-    UnexpectedStatus(Status, Status),
+    #[error("Expected status {0}, received {1}")]
+    UnexpectedStatus(Status, Status, String),
 
-    #[error("Filetype: expected {0}, receieved {1}")]
+    #[error("Expected filetype {0}, receieved {1}")]
     UnexpectedFiletype(String, String),
 
     #[error("Failed to write file: {0}")]

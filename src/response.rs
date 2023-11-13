@@ -31,7 +31,9 @@ impl Response {
     /// Return utf8 text (if any) inside this response, regardless of mimetype.
     pub fn text(&self) -> Result<String> {
         self.require_status(20)?;
-        Ok(std::str::from_utf8(&self.content)?.to_string())
+        Ok(std::str::from_utf8(&self.content)
+            .map_err(|e| ResponseErr::Utf8Content(e))?
+            .to_string())
     }
 
     /// Save response to file.
@@ -56,7 +58,11 @@ impl Response {
     /// (private) Error if `s` doesn't match the status
     fn require_status(&self, s: u8) -> Result<()> {
         if self.status != s {
-            Err(ResponseErr::UnexpectedStatus(s.into(), self.status.into()))
+            Err(ResponseErr::UnexpectedStatus(
+                s.into(),
+                self.status.into(),
+                self.meta.clone(),
+            ))
         } else {
             Ok(())
         }

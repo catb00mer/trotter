@@ -151,7 +151,7 @@ impl Actor {
             p = c;
         }
 
-        let header = std::str::from_utf8(&header)?;
+        let header = std::str::from_utf8(&header).map_err(|e| ActorError::Utf8Header(e))?;
 
         // Strip status and meta from the header
         let (status, meta) = header.split_once(' ').ok_or(ActorError::MalformedHeader)?;

@@ -9,14 +9,22 @@ license = "GPL-3.0-only"
 keywords = ["gemini"]
 categories = ["network-programming"]
 
+[lib]
+name = "trotter"
+path = "src/lib.rs"
+
+[[bin]]
+name = "trot"
+path = "src/main.rs"
+
 [dependencies]
 openssl = "0.10"
 thiserror = "1.0"
 tokio = { version = "1", features = ["fs", "io-util", "net", "macros", "io-std", "rt-multi-thread", "time"] }
 tokio-openssl = "0.6"
 url = "2.4"
+clap = { version = "4", features = ["derive"] }
 
 [dev-dependencies]
 trotter = { path = "." }
 anyhow = "1"
-clap = { version = "4.4", features = ["derive"] }
