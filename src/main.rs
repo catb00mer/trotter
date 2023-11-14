@@ -118,7 +118,12 @@ async fn run() -> Result<(), TrotErr> {
                 Symbol::Header1(a) => print!("\x1b[32;1m▍ {a}"),
                 Symbol::Header2(a) => print!("\x1b[36;1m▋ {a}"),
                 Symbol::Header3(a) => print!("\x1b[34;1m█ {a}"),
-                Symbol::Codeblock(a, b) => print!("\x1b[35;2m{a}\x1b[0m\n\x1b[35m{b}"),
+                Symbol::Codeblock(a, b) => {
+                    if !a.is_empty() {
+                        print!("\x1b[35;2m{a}\x1b[0m\n")
+                    }
+                    print!("\x1b[35m{b}")
+                }
             }
             println!("\x1b[0m");
         }
