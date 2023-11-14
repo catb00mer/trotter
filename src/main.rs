@@ -21,10 +21,11 @@ enum TrotErr {
 /// 🎠 Trot: A command-line gemini client. Non-success statuses are included in the exit code.
 #[derive(Parser)]
 struct Cli {
+    /// Gemini url
     url: String,
 
-    #[clap(short, long)]
-    input: Option<String>,
+    /// Add input to url (percent-encoding happens automagically)
+    input: Option<Vec<String>>,
 
     #[clap(short, long)]
     cert: Option<PathBuf>,
@@ -90,6 +91,8 @@ async fn run() -> Result<(), TrotErr> {
 
     // Get response
     let response = if let Some(input) = input {
+        let mut input: String = input.iter().map(|x| format!("{x} ")).collect();
+        let _ = input.pop();
         actor.input(url, input).await?
     } else {
         actor.get(url).await?
