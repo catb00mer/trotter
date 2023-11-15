@@ -14,7 +14,7 @@ pub enum ActorError {
     #[error("OpenSSL error: {0}")]
     SslErr(#[from] openssl::error::ErrorStack),
 
-    #[error("Key and/or cert files are either missing or malformed.")]
+    #[error("Key and/or cert files are either missing or malformed")]
     KeyCertFileError(openssl::error::ErrorStack),
 
     #[error("Failed to establish tcp connection: {0}")]
@@ -38,8 +38,11 @@ pub enum ActorError {
     #[error("Server has no certificate")]
     NoCertificate,
 
-    #[error("Server certificate is valid for no domains")]
-    NoSubjectNames,
+    #[error("Server certificate is malformed, because its subject name isn't utf8")]
+    SubjectNameNotUtf8(openssl::error::ErrorStack),
+
+    #[error("Server certificate is malformed, because it indicates no domains")]
+    NoDomains,
 
     #[error("Certificate is valid for {0}, not {1}")]
     DomainUncerified(String, String),

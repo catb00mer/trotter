@@ -1,6 +1,9 @@
 use std::{path::PathBuf, time::Duration};
 
-use openssl::ssl::{Ssl, SslConnector, SslFiletype, SslMethod, SslVerifyMode};
+use openssl::{
+    nid::Nid,
+    ssl::{Ssl, SslConnector, SslFiletype, SslMethod, SslVerifyMode},
+};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -162,7 +165,7 @@ impl Actor {
             p = c;
         }
 
-        let header = std::str::from_utf8(&header).map_err(|e| ActorError::Utf8Header(e))?;
+        let header = std::str::from_utf8(&header).map_err(|e| ActorError::HeaderNotUtf8(e))?;
 
         // Strip status and meta from the header
         let (status, meta) = header.split_once(' ').ok_or(ActorError::MalformedHeader)?;
@@ -175,25 +178,37 @@ impl Actor {
         let mut content: Vec<u8> = Vec::new();
         stream.read_to_end(&mut content).await?;
 
-        // Get certificate pem
+        // Get certificate
         let certificate = stream
             .ssl()
             .peer_certificate()
             .ok_or(ActorError::NoCertificate)?;
 
-        // Get list of valid domains
-        let valid_domains: Vec<String> = certificate
-            .subject_alt_names()
-            .ok_or(ActorError::NoSubjectNames)?
+        // Begin collecting a list of valid domains
+        let mut valid_domains: Vec<String> = Vec::new();
+
+        // Add subject's common name to list
+        for x in certificate
+            .subject_name()
+            .entries_by_nid(Nid::COMMONNAME)
             .into_iter()
-            .filter_map(|x| {
+        {
+            valid_domains.push(
+                x.data()
+                    .as_utf8()
+                    .map_err(|e| ActorError::SubjectNameNotUtf8(e))?
+                    .to_string(),
+            );
+        }
+
+        // Add list of alternative common names tagged under `DNS`
+        if let Some(names) = certificate.subject_alt_names() {
+            names.into_iter().for_each(|x| {
                 if let Some(name) = x.dnsname() {
-                    Some(name.to_string())
-                } else {
-                    None
+                    valid_domains.push(name.to_string());
                 }
             })
-            .collect();
+        }
 
         // Error if none of them match
         if valid_domains
