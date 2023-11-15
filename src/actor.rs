@@ -275,7 +275,9 @@ impl Actor {
             url.set_path("/");
         }
 
-        url.set_query(input);
+        if let Some(input) = input {
+            url.set_query(Some(input));
+        }
 
         Ok(url)
     }
