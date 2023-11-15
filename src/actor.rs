@@ -149,7 +149,7 @@ impl Actor {
         // Get response header
         let mut header: Vec<u8> = Vec::new();
         let mut p = b' ';
-        loop {
+        for _ in 0..=1026 {
             let c = stream.read_u8().await?;
 
             // Break if \r\n
