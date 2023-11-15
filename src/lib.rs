@@ -2,6 +2,7 @@
 
 mod actor;
 pub mod error;
+/// Provides tools for parsing gemtext
 pub mod parse;
 mod response;
 mod status;

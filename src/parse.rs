@@ -20,6 +20,7 @@ impl Gemtext {
         self.0
     }
 
+    /// Parse a gemtext string into a vector of [`Symbol`].
     pub fn parse(s: &str) -> Self {
         let mut v: Vec<Symbol> = Vec::new();
 

@@ -19,15 +19,14 @@ async fn main() {
         .await
         .unwrap();
 
-    trotter::trot_in("localhost/input", "notice me!") // gemini:// prefix and root slash can be elided
+    trotter::trot_in("localhost/input", "notice me!")
         .await
         .unwrap();
 }
 ```
 
 ### Actors
-For more-detailed requests, Trotter personifies the entity
-requesting information as an [`Actor`].
+For more-detailed requests, you can use an [`Actor`].
 
 You can use the builder pattern to easily attach a user
 agent and client certificate to the actor.
@@ -67,9 +66,32 @@ Once you receive a structured [`Response`], you can either
 weed through it yourself, or rely on the helper functions it
 implements to preform common operations.
 
-## 📖 Gemtext
-You can parse gemtext into a list of symbols with
-[`parse::Gemtext::parse`] method.
+## 📖 Parsing
+Trotter also provides tools for parsing gemtext. 
+
+``` rust
+use trotter::parse::Gemtext;
+
+fn main() {
+    let txt = "# 💎
+## Is
+### So
+> effing
+* dope
+man
+=> /path/to/somewhere i can take u there
+``` alt text goes here
+Here's a table
+| The | Best |
+|-----|------|
+| 😘  | 😪   |
+```";
+
+    let gemtext = Gemtext::parse(txt);
+
+    println!("{gemtext:#?}");
+}
+```
 
 ## Tips
 ### Certificates
