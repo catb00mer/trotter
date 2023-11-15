@@ -114,4 +114,4 @@ robust enough to write a complete client with.
 - [X] robots.txt support
 - [X] Custom errors
 - [X] Cli binary 👀
-- [ ] Server certificates
+- [X] Server certificates

@@ -7,6 +7,7 @@ use tokio::{
 };
 use tokio_openssl::SslStream;
 use url::Url;
+use wildmatch::WildMatch;
 
 use crate::{error::ActorError, Response, UserAgent};
 
@@ -174,10 +175,44 @@ impl Actor {
         let mut content: Vec<u8> = Vec::new();
         stream.read_to_end(&mut content).await?;
 
+        // Get certificate pem
+        let certificate = stream
+            .ssl()
+            .peer_certificate()
+            .ok_or(ActorError::NoCertificate)?;
+
+        // Get list of valid domains
+        let valid_domains: Vec<String> = certificate
+            .subject_alt_names()
+            .ok_or(ActorError::NoSubjectNames)?
+            .into_iter()
+            .filter_map(|x| {
+                if let Some(name) = x.dnsname() {
+                    Some(name.to_string())
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // Error if none of them match
+        if valid_domains
+            .iter()
+            .filter(|x| WildMatch::new(x).matches(&domain))
+            .count()
+            == 0
+        {
+            return Err(ActorError::DomainUncerified(
+                format!("{valid_domains:?}"),
+                domain.to_string(),
+            ))?;
+        }
+
         Ok(Response {
             content,
             status,
             meta,
+            certificate,
         })
     }
 

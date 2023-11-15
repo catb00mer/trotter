@@ -1,13 +1,17 @@
 use std::{fs::File, io::Write, path::PathBuf};
 
+use openssl::x509::X509;
+
 use crate::error::ResponseErr;
 
 /// A gemini response.
 #[derive(Debug)]
 pub struct Response {
-    pub status:  u8,
-    pub meta:    String,
-    pub content: Vec<u8>,
+    pub status:      u8,
+    pub meta:        String,
+    pub content:     Vec<u8>,
+    /// The certificate of the responding server.
+    pub certificate: X509,
 }
 
 type Result<T> = std::result::Result<T, ResponseErr>;
@@ -61,6 +65,18 @@ impl Response {
         file.write_all(&self.content)
             .map_err(|e| ResponseErr::FileWrite(e))?;
         Ok(())
+    }
+
+    /// Return the server's certificate pem
+    pub fn certificate_pem(&self) -> Result<String> {
+        Ok(std::str::from_utf8(
+            &self
+                .certificate
+                .to_pem()
+                .map_err(|e| ResponseErr::SerializingToPem(e))?,
+        )
+        .map_err(|e| ResponseErr::PemInvalidUtf8(e))?
+        .to_string())
     }
 
     /// (private) Error if `s` doesn't match the status

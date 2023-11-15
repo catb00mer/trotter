@@ -34,6 +34,15 @@ pub enum ActorError {
 
     #[error("Tcp connection timeout: {0}")]
     Timeout(tokio::time::error::Elapsed),
+
+    #[error("Server has no certificate")]
+    NoCertificate,
+
+    #[error("Server certificate is valid for no domains")]
+    NoSubjectNames,
+
+    #[error("Certificate is valid for {0}, not {1}")]
+    DomainUncerified(String, String),
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -52,4 +61,10 @@ pub enum ResponseErr {
 
     #[error("Failed to create file: {0}")]
     FileCreate(std::io::Error),
+
+    #[error("Failed to serialize server's certificate to pem.")]
+    SerializingToPem(openssl::error::ErrorStack),
+
+    #[error("Server's certificate pem is invalid utf-8: {0}")]
+    PemInvalidUtf8(std::str::Utf8Error),
 }
