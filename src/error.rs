@@ -8,8 +8,8 @@ pub enum ActorError {
     #[error("Failed reading/writing to stream: {0}")]
     Stream(#[from] std::io::Error),
 
-    #[error("Header isn't utf8: {0}")]
-    Utf8Header(std::str::Utf8Error),
+    #[error("Received a non-utf8 header: {0}")]
+    HeaderNotUtf8(std::str::Utf8Error),
 
     #[error("OpenSSL error: {0}")]
     SslErr(#[from] openssl::error::ErrorStack),
@@ -70,4 +70,10 @@ pub enum ResponseErr {
 
     #[error("Server's certificate pem is invalid utf-8: {0}")]
     PemInvalidUtf8(std::str::Utf8Error),
+
+    #[error("Failed to inspect server's certificate: {0}")]
+    FailedToInspectCert(openssl::error::ErrorStack),
+
+    #[error("Server's certificate info is invalid utf-8: {0}")]
+    CertInfoIsntValidUtf8(std::str::Utf8Error),
 }

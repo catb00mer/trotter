@@ -17,6 +17,7 @@ pub struct Response {
 type Result<T> = std::result::Result<T, ResponseErr>;
 
 impl Response {
+    /// Returns true if the response is gemtext.
     pub fn is_gemtext(&self) -> bool {
         if let Some(pos) = self.meta.find("text/gemini") {
             if pos == 0 {
@@ -76,6 +77,21 @@ impl Response {
                 .map_err(|e| ResponseErr::SerializingToPem(e))?,
         )
         .map_err(|e| ResponseErr::PemInvalidUtf8(e))?
+        .to_string())
+    }
+
+    /// Returns a human-readable string displaying info about the
+    /// server's certificate.
+    ///
+    /// *primarily for debugging purposes*
+    pub fn certificate_info(&self) -> Result<String> {
+        Ok(std::str::from_utf8(
+            &self
+                .certificate
+                .to_text()
+                .map_err(|e| ResponseErr::FailedToInspectCert(e))?,
+        )
+        .map_err(|e| ResponseErr::CertInfoIsntValidUtf8(e))?
         .to_string())
     }
 
