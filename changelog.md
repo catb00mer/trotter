@@ -26,8 +26,6 @@
 - Fixed scenario where client would read more than 1024
   bytes in header.
 
-## 2023.11.16 - 0.5
+## 2023.11.16 - 0.5.0
 - `trot`: Added `--cert-pem` and `--cert-info` options
 - Implemented `Into<u8>` for `Status`, and removed panic.
-- Significantly buffed the speed of `localhost` connections by using
-  `127.0.0.1` instead of resolving.
