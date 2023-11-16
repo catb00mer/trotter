@@ -10,11 +10,15 @@ struct Cli {
 async fn main() -> anyhow::Result<()> {
     let Cli { url } = Cli::parse();
 
-    let r = Actor::default()
-        .cert_file("demo.crt")
-        .key_file("demo.key")
-        .get(url)
-        .await?;
+    println!(
+        "{}",
+        Actor::default()
+            .cert_file("demo.crt")
+            .key_file("demo.key")
+            .get(url)
+            .await?
+            .gemtext()?
+    );
 
     Ok(())
 }
