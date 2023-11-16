@@ -131,16 +131,7 @@ impl Actor {
 
         let tcp = tokio::time::timeout(
             self.timeout,
-            TcpStream::connect(&format!(
-                "{}:{port}",
-                // Use ip for localhost, because resolving it is like 90ms slower. Lmk if this is a
-                // bad idea
-                if domain == "localhost" {
-                    "127.0.0.1"
-                } else {
-                    domain
-                }
-            )),
+            TcpStream::connect(&format!("{domain}:{port}")),
         )
         .await
         .map_err(|t| ActorError::Timeout(t))?
