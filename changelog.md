@@ -13,3 +13,15 @@
 - Added `--pretty-print` option to `trot`
 - Added `parse` module for parsing gemtext into symbols.
 - Added `Response::is_gemtext`
+
+## 2023.11.15 - 0.4.0
+- `trot`: Decided to remove `-i`, `--input` and instead
+  capture all remaining arguments as input because it feels
+  better to use.
+- Added `Response::certificate_pem` function
+- Added `Response::certificate_info` function
+- Added domain name validation.
+- Fixed queries being stripped from urls when an input function
+  isn't used.
+- Fixed scenario where client would read more than 1024
+  bytes in header.

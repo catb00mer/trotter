@@ -2,6 +2,10 @@
 Trotter is an *experimental* crate that aims to make
 interacting with gemini servers fun and easy.
 
+This crate comes with the `trot` command-line program that
+exposes most of its functionality. Install it with the
+command `cargo install trotter`.
+
 There's also [Fluffer](https://docs.rs/fluffer), a crate for writing gemini server apps.
 
 ## 😊 Requests
@@ -100,7 +104,7 @@ installed, you can define the following functions to easily
 generate and inspect x509 certificates.
 
 ``` sh
-certgen() { [ -f "${1:?usage: certgen [name]}.key" ] || [ -f "$1.crt" ] || ( openssl req -new -subj "/CN=$1" -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -days 3650 -nodes -out "$1.crt" -keyout "$1.key" && printf '📜 Cert generated\n' ) ;}
+certgen() { [ -f "${1:?usage: certgen [domain]}.key" ] || [ -f "$1.crt" ] || ( openssl req -new -subj "/CN=$1" -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -days 3650 -nodes -out "$1.crt" -keyout "$1.key" && printf '📜 Cert generated\n' ) ;}
 certinfo(){ openssl x509 -noout -text < "${1:?usage: certinfo [file]}" ;}
 ```
 
@@ -115,3 +119,5 @@ robust enough to write a complete client with.
 - [X] Custom errors
 - [X] Cli binary 👀
 - [X] Server certificates
+- [ ] Tofu store directory
+- [ ] Byte read/write timeout
