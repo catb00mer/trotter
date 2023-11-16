@@ -52,6 +52,14 @@ struct Cli {
     /// Print pretty gemtext responses.
     #[clap(short, long)]
     pretty_print: bool,
+
+    /// Print server's certificate pem, and exit
+    #[clap(long)]
+    cert_pem: bool,
+
+    /// Print server's certificate info, and exit
+    #[clap(long)]
+    cert_info: bool,
 }
 
 async fn run() -> Result<(), TrotErr> {
@@ -65,6 +73,8 @@ async fn run() -> Result<(), TrotErr> {
         timeout,
         gemtext_only,
         pretty_print,
+        cert_pem,
+        cert_info,
     } = Cli::parse();
 
     let mut actor = Actor {
@@ -97,6 +107,16 @@ async fn run() -> Result<(), TrotErr> {
     } else {
         actor.get(url).await?
     };
+
+    if cert_pem {
+        println!("{}", response.certificate_pem()?);
+        return Ok(());
+    }
+
+    if cert_info {
+        println!("{}", response.certificate_info()?);
+        return Ok(());
+    }
 
     // Save or output
     if let Some(output) = output {
