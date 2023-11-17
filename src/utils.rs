@@ -9,7 +9,17 @@ pub fn parse_robots(txt: &str) -> HashMap<&str, Vec<&str>> {
     let mut was_user = false; // True if the last line was a user agent
 
     // Remove comments
-    let txt = txt.lines().filter(|x| !x.trim_start().starts_with('#'));
+    let txt = txt.lines().filter_map(|x| {
+        if !x.trim_start().starts_with('#') {
+            if let Some((x, _)) = x.split_once('#') {
+                Some(x)
+            } else {
+                Some(x)
+            }
+        } else {
+            None
+        }
+    });
 
     for line in txt {
         if let Some((_, agent)) = line.trim().split_once("User-agent:") {
