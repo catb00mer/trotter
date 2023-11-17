@@ -150,7 +150,7 @@ impl Actor {
             .await?;
 
         // Get response header
-        let mut header: Vec<u8> = Vec::new();
+        let mut header: Vec<u8> = Vec::with_capacity(1024);
         let mut p = b' ';
         for _ in 0..=1026 {
             let c = stream.read_u8().await?;
