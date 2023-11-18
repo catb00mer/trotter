@@ -29,3 +29,6 @@
 ## 2023.11.16 - 0.5.0
 - `trot`: Added `--cert-pem` and `--cert-info` options
 - Implemented `Into<u8>` for `Status`, and removed panic.
+
+## 2023.11.18 - 0.5.1
+- Strip out inline comments when parsing `robots.txt` (i forgor 💀)
